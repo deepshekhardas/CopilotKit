@@ -27,7 +27,6 @@ Specify a model using the `"provider:model"` format (or `"provider/model"` — b
 
 ```typescript
 const agent = new BuiltInAgent({
-  name: "assistant",
   model: "openai:gpt-4.1",
 });
 ```
@@ -45,7 +44,6 @@ const agent = new BuiltInAgent({
 
 ```typescript
 const agent = new BuiltInAgent({
-  name: "assistant",
   model: "anthropic:claude-sonnet-4.5",
 });
 ```
@@ -60,7 +58,6 @@ const agent = new BuiltInAgent({
 
 ```typescript
 const agent = new BuiltInAgent({
-  name: "assistant",
   model: "google:gemini-2.5-pro",
 });
 ```
@@ -84,7 +81,6 @@ Alternatively, pass the API key directly in your configuration:
 
 ```typescript
 const agent = new BuiltInAgent({
-  name: "assistant",
   model: "openai:gpt-4.1",
   apiKey: process.env.MY_OPENAI_KEY, // [!code highlight]
 });
@@ -104,7 +100,6 @@ const customProvider = createOpenAI({ // [!code highlight]
 }); // [!code highlight]
 
 const agent = new BuiltInAgent({
-  name: "assistant",
   model: customProvider("my-fine-tuned-model"), // [!code highlight]
 });
 ```
@@ -120,7 +115,6 @@ const azure = createAzure({
 });
 
 const agent = new BuiltInAgent({
-  name: "assistant",
   model: azure("my-deployment"),
 });
 ```

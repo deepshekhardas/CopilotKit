@@ -39,7 +39,6 @@ Key benefits:
     import { NextRequest } from "next/server";
 
     const agent = new BuiltInAgent({
-      name: "assistant",
       model: "openai:gpt-4o",
       prompt: "You are a helpful assistant.",
     }).use( // [!code highlight:9]
@@ -55,7 +54,7 @@ Key benefits:
     );
 
     const runtime = new CopilotRuntime({
-      agents: [agent],
+      agents: { default: agent },
     });
 
     export const POST = async (req: NextRequest) => {

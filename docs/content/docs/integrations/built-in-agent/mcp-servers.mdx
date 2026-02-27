@@ -22,7 +22,6 @@ The SSE (Server-Sent Events) transport is the most common option:
 import { BuiltInAgent } from "@copilotkit/runtime/v2";
 
 const builtInAgent = new BuiltInAgent({
-  name: "assistant",
   model: "openai:gpt-4o",
   mcpServers: [
     {
@@ -39,7 +38,6 @@ Pass custom headers for authentication:
 
 ```typescript
 const builtInAgent = new BuiltInAgent({
-  name: "assistant",
   model: "openai:gpt-4o",
   mcpServers: [
     {
@@ -59,7 +57,6 @@ The HTTP (Streamable HTTP) transport uses standard HTTP requests:
 
 ```typescript
 const builtInAgent = new BuiltInAgent({
-  name: "assistant",
   model: "openai:gpt-4o",
   mcpServers: [
     {
@@ -78,7 +75,6 @@ Connect multiple MCP servers — tools from all servers are available to the age
 
 ```typescript
 const builtInAgent = new BuiltInAgent({
-  name: "assistant",
   model: "openai:gpt-4o",
   mcpServers: [
     {
@@ -116,7 +112,6 @@ const customTool = defineTool({
 });
 
 const builtInAgent = new BuiltInAgent({
-  name: "assistant",
   model: "openai:gpt-4o",
   tools: [customTool], // Your custom tools
   mcpServers: [        // Plus tools from MCP servers

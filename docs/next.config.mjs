@@ -128,7 +128,6 @@ const config = {
       'agno',
       'agent-spec',
       'crewai-flows',
-      'crewai-crews',
       'built-in-agent',
       'langgraph',
       'llamaindex',
@@ -174,6 +173,16 @@ const config = {
       {
         source: '/coagents/:path*',
         destination: '/langgraph/:path*',
+        permanent: true,
+      },
+      {
+        source: '/crewai-crews/:path*',
+        destination: '/crewai-flows/:path*',
+        permanent: true,
+      },
+      {
+        source: '/crewai-crews',
+        destination: '/crewai-flows',
         permanent: true,
       },
       // Strip /generative-ui/ prefix from old URLs
@@ -315,11 +324,6 @@ const config = {
         permanent: true,
       },
       {
-        source: '/crewai-crews/multi-agent-flows',
-        destination: '/crewai-crews',
-        permanent: true,
-      },
-      {
         source: '/crewai-flows/multi-agent-flows',
         destination: '/crewai-flows',
         permanent: true,
@@ -337,11 +341,6 @@ const config = {
       {
         source: '/langgraph/quickstart/langgraph',
         destination: '/langgraph/quickstart',
-        permanent: true,
-      },
-      {
-        source: '/crewai-crews/quickstart/crewai',
-        destination: '/crewai-crews/quickstart',
         permanent: true,
       },
       {
@@ -387,11 +386,6 @@ const config = {
       {
         source: '/agno/mcp',
         destination: '/agno/coding-agents',
-        permanent: true,
-      },
-      {
-        source: '/crewai-crews/mcp',
-        destination: '/crewai-crews/coding-agents',
         permanent: true,
       },
       {
