@@ -18,7 +18,6 @@ import { AgentSpecMarkIcon, A2AIcon } from "@/lib/icons/custom-icons";
 import AdkIcon from "../ui/icons/adk";
 import Ag2Icon from "../ui/icons/ag2";
 import CrewaiIcon from "../ui/icons/crewai";
-import DirectToLlmIcon from "../ui/icons/direct-to-llm";
 import LanggraphIcon from "../ui/icons/langgraph";
 import LlamaIndexIcon from "../ui/icons/llama-index";
 import MastraIcon from "../ui/icons/mastra";
@@ -32,7 +31,7 @@ const INTEGRATION_ICONS: Record<
   IntegrationId,
   ComponentType<{ className?: string }>
 > = {
-  "direct-to-llm": DirectToLlmIcon,
+  "built-in-agent": () => <p>🪁</p>,
   langgraph: LanggraphIcon,
   adk: AdkIcon,
   "microsoft-agent-framework": MicrosoftIcon,
@@ -95,7 +94,7 @@ const IntegrationsGrid: React.FC<IntegrationsGridProps> = ({
   const getHref = (integration: Integration) => {
     if (targetPage) {
       // Special case: direct-to-llm has pages in /guides/ subdirectory
-      if (integration.id === "direct-to-llm") {
+      if (integration.id === "built-in-agent") {
         return `${integration.href}/guides/${targetPage}`;
       }
       return `${integration.href}/${targetPage}`;
@@ -113,7 +112,7 @@ const IntegrationsGrid: React.FC<IntegrationsGridProps> = ({
   // Filter out Direct to LLM if suppressed
   if (suppressDirectToLLM) {
     filteredIntegrations = filteredIntegrations.filter(
-      (integration) => integration.id !== "direct-to-llm",
+      (integration) => integration.id !== "built-in-agent",
     );
   }
 
