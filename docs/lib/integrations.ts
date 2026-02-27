@@ -12,7 +12,7 @@
 
 // Integration IDs - order matters!
 export const INTEGRATION_ORDER = [
-  "direct-to-llm",
+  "built-in-agent",
   "langgraph",
   "adk",
   "microsoft-agent-framework",
@@ -41,10 +41,11 @@ export const INTEGRATION_METADATA: Record<
   IntegrationId,
   Omit<IntegrationMeta, "id">
 > = {
-  "direct-to-llm": {
-    label: "Direct to LLM",
-    href: "/direct-to-llm",
-    description: "Connect directly to any LLM without an agent framework.",
+  "built-in-agent": {
+    label: "Built-in Agent",
+    href: "/built-in-agent",
+    description:
+      "Use CopilotKit's built-in agent — no external framework required.",
   },
   langgraph: {
     label: "LangGraph",

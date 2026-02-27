@@ -1,9 +1,8 @@
 {
   "title": "Generative UI",
-  "defaultOpen": true,
+  "icon": "lucide/Paintbrush",
   "pages": [
-    "display",
-    "interactive",
+    "your-components",
     "tool-rendering",
     "state-rendering",
     "mcp-apps",

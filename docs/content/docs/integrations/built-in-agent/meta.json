@@ -1,5 +1,5 @@
 {
-  "title": "BuiltIn Agent",
+  "title": "Built-in Agent",
   "root": true,
   "pages": [
     "---Getting Started---",
@@ -10,7 +10,7 @@
     "...generative-ui",
     "---App Control---",
     "frontend-tools",
-    "---BuiltIn Agent---",
+    "---Built-in Agent---",
     "server-tools", "mcp-servers", "model-selection",
     "---Backend---",
     "copilot-runtime", "ag-ui",

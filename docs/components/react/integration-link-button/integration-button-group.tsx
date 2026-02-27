@@ -4,7 +4,7 @@ import Ag2Icon from "@/components/ui/icons/ag2";
 import AgnoIcon from "@/components/ui/icons/agno";
 import { AwsStrandsIcon } from "@/components/ui/icons/aws-strands";
 import CrewaiIcon from "@/components/ui/icons/crewai";
-import DirectToLlmIcon from "@/components/ui/icons/direct-to-llm";
+import CopilotKitMarkIcon from "@/components/ui/icons/copilotkit-mark";
 import LanggraphIcon from "@/components/ui/icons/langgraph";
 import LlamaIndexIcon from "@/components/ui/icons/llama-index";
 import MastraIcon from "@/components/ui/icons/mastra";
@@ -34,7 +34,7 @@ const INTEGRATION_ICONS: Record<
   "agent-spec": AgentSpecMarkIcon,
   agno: AgnoIcon,
   "crewai-flows": CrewaiIcon,
-  "direct-to-llm": DirectToLlmIcon,
+  "built-in-agent": CopilotKitMarkIcon,
   langgraph: LanggraphIcon,
   llamaindex: LlamaIndexIcon,
   mastra: MastraIcon,

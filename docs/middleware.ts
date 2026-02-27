@@ -16,7 +16,7 @@ const FRAMEWORKS = [
   "microsoft-agent-framework",
   "aws-strands",
   "a2a",
-  "builtin-agent",
+  "built-in-agent",
 ];
 
 export function middleware(request: NextRequest) {
@@ -40,7 +40,7 @@ export function middleware(request: NextRequest) {
     "/coagents/generative-ui": "/langgraph/generative-ui",
 
     // Common typos and variations
-    "/direct-to-llm/guide": "/builtin-agent/guides",
+    "/direct-to-llm/guide": "/built-in-agent/guides",
     "/langgraph/guide": "/langgraph/guides",
     "/mastra/guide": "/mastra/guides",
     "/agno/guide": "/agno/guides",
@@ -62,6 +62,19 @@ export function middleware(request: NextRequest) {
 
     // Frontend actions → frontend tools (renamed in restructure)
     "/frontend-actions": "/frontend-tools",
+
+    // Generative UI directory → first page
+    "/generative-ui": "/generative-ui/your-components/display-only",
+    "/generative-ui/display": "/generative-ui/your-components/display-only",
+    "/generative-ui/interactive": "/generative-ui/your-components/interactive",
+
+    // Old root page names → new names
+    "/agentic-chat-ui": "/prebuilt-components",
+    "/headless": "/custom-look-and-feel/headless-ui",
+    "/coding-agent-setup": "/coding-agents",
+    "/copilot-suggestions": "/prebuilt-components",
+    "/direct-to-llm": "/built-in-agent",
+    "/builtin-agent": "/built-in-agent",
 
     // Contributing paths
     "/contributing/code-contributions/package-linking":

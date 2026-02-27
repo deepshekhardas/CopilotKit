@@ -7,7 +7,7 @@ import AdkIcon from "../icons/adk";
 import Ag2Icon from "../icons/ag2";
 import AgnoIcon from "../icons/agno";
 import CrewaiIcon from "../icons/crewai";
-import DirectToLlmIcon from "../icons/direct-to-llm";
+import CopilotKitMarkIcon from "../icons/copilotkit-mark";
 import LanggraphIcon from "../icons/langgraph";
 import LlamaIndexIcon from "../icons/llama-index";
 import MastraIcon from "../icons/mastra";
@@ -37,7 +37,7 @@ const INTEGRATION_ICONS: Record<
   IntegrationId,
   ComponentType<{ className?: string }>
 > = {
-  "direct-to-llm": DirectToLlmIcon,
+  "built-in-agent": CopilotKitMarkIcon,
   langgraph: LanggraphIcon,
   adk: AdkIcon,
   "microsoft-agent-framework": MicrosoftIcon,
@@ -96,7 +96,12 @@ const IntegrationSelector = ({
   useEffect(() => {
     const persistedSelection = sessionStorage.getItem("selectedIntegration");
     if (persistedSelection && persistedSelection !== "null") {
-      setSelectedIntegration(persistedSelection as Integration);
+      // Validate against current integration list to avoid stale values
+      if (INTEGRATION_ORDER.includes(persistedSelection as IntegrationId)) {
+        setSelectedIntegration(persistedSelection as Integration);
+      } else {
+        sessionStorage.removeItem("selectedIntegration");
+      }
     }
   }, [setSelectedIntegration]);
 
@@ -134,7 +139,7 @@ const IntegrationSelector = ({
   }, [selectedIntegration]);
 
   const integration = selectedIntegration
-    ? INTEGRATION_OPTIONS[selectedIntegration]
+    ? (INTEGRATION_OPTIONS[selectedIntegration] ?? DEFAULT_INTEGRATION)
     : DEFAULT_INTEGRATION;
 
   const { Icon } = integration;

@@ -129,7 +129,7 @@ const config = {
       'agent-spec',
       'crewai-flows',
       'crewai-crews',
-      'builtin-agent',
+      'built-in-agent',
       'langgraph',
       'llamaindex',
       'mastra',
@@ -140,10 +140,10 @@ const config = {
 
     return {
       beforeFiles: [
-        // Map /guides/* to /builtin-agent/guides/* (legacy path)
+        // Map /guides/* to /built-in-agent/guides/* (legacy path)
         {
           source: '/guides/:path*',
-          destination: '/builtin-agent/guides/:path*',
+          destination: '/built-in-agent/guides/:path*',
         },
         // Map integration URLs
         ...integrations.map((integration) => ({
@@ -401,7 +401,7 @@ const config = {
       },
       {
         source: '/direct-to-llm/guides/mcp',
-        destination: '/builtin-agent/coding-agents',
+        destination: '/built-in-agent/coding-agents',
         permanent: true,
       },
       {
@@ -488,10 +488,15 @@ const config = {
 
       // === Docs Restructure Redirects (2026-02) ===
 
-      // Priority 1: direct-to-llm → builtin-agent
+      // Priority 1: direct-to-llm / builtin-agent → built-in-agent
       {
         source: '/direct-to-llm/:path*',
-        destination: '/builtin-agent/:path*',
+        destination: '/built-in-agent/:path*',
+        permanent: true,
+      },
+      {
+        source: '/builtin-agent/:path*',
+        destination: '/built-in-agent/:path*',
         permanent: true,
       },
 

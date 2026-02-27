@@ -13,7 +13,7 @@ type Feature = {
 };
 
 const frameworks: Framework[] = [
-  { name: "Built-in", slug: "builtin-agent" },
+  { name: "Built-in", slug: "built-in-agent" },
   { name: "LangGraph", slug: "langgraph" },
   { name: "ADK", slug: "adk" },
   { name: "Microsoft", slug: "microsoft-agent-framework" },
@@ -172,7 +172,7 @@ const matrix: Record<string, Record<string, boolean>> = {
     mcpApps: true,
     a2ui: true,
   },
-  "builtin-agent": {
+  "built-in-agent": {
     sharedState: true,
     feTools: true,
     readables: true,

@@ -3,7 +3,7 @@ import { AgentSpecMarkIcon } from "@/lib/icons/custom-icons";
 import AdkIcon from "@/components/ui/icons/adk";
 import Ag2Icon from "@/components/ui/icons/ag2";
 import CrewaiIcon from "@/components/ui/icons/crewai";
-import DirectToLlmIcon from "@/components/ui/icons/direct-to-llm";
+import CopilotKitMarkIcon from "@/components/ui/icons/copilotkit-mark";
 import LanggraphIcon from "@/components/ui/icons/langgraph";
 import LlamaIndexIcon from "@/components/ui/icons/llama-index";
 import MastraIcon from "@/components/ui/icons/mastra";
@@ -14,7 +14,7 @@ import { AwsStrandsIcon } from "@/components/ui/icons/aws-strands";
 import type { ComponentType } from "react";
 
 export type IntegrationName =
-  | "direct-to-llm"
+  | "built-in-agent"
   | "langgraph"
   | "adk"
   | "microsoft-agent-framework"
@@ -36,10 +36,11 @@ interface Integration {
 
 const INTEGRATIONS: Integration[] = [
   {
-    name: "direct-to-llm",
-    label: "Direct to LLM",
-    description: "Connect directly to any LLM without an agent framework.",
-    icon: DirectToLlmIcon,
+    name: "built-in-agent",
+    label: "Built-in Agent",
+    description:
+      "Use CopilotKit's built-in agent — no external framework required.",
+    icon: CopilotKitMarkIcon,
   },
   {
     name: "langgraph",
