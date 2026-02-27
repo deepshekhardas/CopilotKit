@@ -1,26 +1,36 @@
 ---
-title: "Built-in Agent"
-description: "Use CopilotKit's built-in agent with OpenAI, Anthropic, or Google models — no external agent framework required."
+title: "Overview"
+description: "Use CopilotKit's built-in agent with any model."
 ---
 
-The **Built-in Agent** is CopilotKit's simplest agent option. It uses a direct LLM connection with support for tools, generative UI, and all CopilotKit features — without requiring an external agent framework like LangGraph or CrewAI.
+The **Built-in Agent** is CopilotKit's simplest agent option. It connects directly to an LLM with full support for tools, generative UI, shared state, and all CopilotKit features — without requiring an external agent framework like LangGraph or CrewAI.
+
+It supports most popular models from OpenAI, Anthropic, and Google out of the box.
 
 ## When to use Built-in Agent
 
-- You want a quick setup without configuring an agent framework
-- Your use case is primarily chat + tools (frontend and server tools)
-- You want to use OpenAI, Anthropic, or Google models directly
-- You're prototyping or building a simpler agent
+- **Quick setup** — no external agent framework to configure or deploy
+- **Chat + tools** — your use case is primarily conversational with frontend and server tools
+- **Direct model access** — you want to use OpenAI, Anthropic, or Google models without a LangGraph/CrewAI layer
+- **Prototyping** — rapidly build and iterate on agent experiences
 
-## Key Features
+<Callout type="info">
+If you need complex agent graphs, human-in-the-loop interrupt flows, or multi-agent orchestration with custom routing, consider [LangGraph](/langgraph) instead.
+</Callout>
 
-- **Server Tools** — Define backend tools with `defineTool()` and Zod schemas
-- **MCP Servers** — Connect to MCP servers for extended capabilities
-- **Model Selection** — Support for OpenAI, Anthropic, and Google models
-- **Frontend Tools** — Full support for `useFrontendTool`, `useComponent`, `useHumanInTheLoop`
-- **Generative UI** — Rich component rendering in chat
-- **Prebuilt Components** — CopilotChat, CopilotSidebar, CopilotPopup
+## Features
+
+<Cards>
+  <Card title="Server Tools" href="/built-in-agent/server-tools" description="Define backend tools with Zod schemas that the agent can invoke." />
+  <Card title="MCP Servers" href="/built-in-agent/mcp-servers" description="Connect MCP servers for extended tool capabilities." />
+  <Card title="Model Selection" href="/built-in-agent/model-selection" description="Choose from OpenAI, Anthropic, and Google models — or bring your own." />
+  <Card title="Frontend Tools" href="/built-in-agent/frontend-tools" description="Let the agent interact with your UI using frontend tools." />
+  <Card title="Shared State" href="/built-in-agent/shared-state" description="Bidirectional state sharing between your app and the agent." />
+  <Card title="Agent Context" href="/built-in-agent/agent-app-context" description="Share app-specific context with the agent automatically." />
+  <Card title="Advanced Configuration" href="/built-in-agent/advanced-configuration" description="Fine-tune temperature, tool choice, multi-step calling, and more." />
+  <Card title="Generative UI" href="/built-in-agent/generative-ui/tool-rendering" description="Render rich React components in the chat." />
+</Cards>
 
 ## Getting Started
 
-Head to the [Quickstart](/built-in-agent/quickstart) to get set up in minutes.
+Head to the [Quickstart](/built-in-agent/quickstart) to set up a working Built-in Agent in minutes.

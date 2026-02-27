@@ -3,43 +3,213 @@ title: "Quickstart"
 description: "Get started with CopilotKit's Built-in Agent in minutes."
 ---
 
-import FindYourCopilotRuntime from "@/snippets/find-your-copilot-runtime.mdx";
-import LLMAdapters from "@/snippets/llm-adapters.mdx";
+import { IoLogoNodejs } from "react-icons/io5";
+import { SiNestjs } from "react-icons/si";
+import { RiNextjsLine } from "react-icons/ri";
+import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 
 <Steps>
 <Step>
 ### Install CopilotKit
 
 ```bash
-npm install @copilotkit/react-core @copilotkit/react-ui @copilotkitnext/agent
+npm install @copilotkit/react-core @copilotkit/react-ui @copilotkit/runtime
 ```
 </Step>
 
 <Step>
-### Set up the Built-in Agent
+### Set up your API key
 
-Create a Built-in Agent on your backend:
+Add your model provider's API key to your `.env` file:
 
-```typescript title="src/copilotkit.ts"
-import { CopilotRuntime } from "@copilotkit/runtime";
-import { BuiltInAgent } from "@copilotkitnext/agent";
-
-const builtInAgent = new BuiltInAgent({
-  name: "assistant",
-  description: "A helpful AI assistant",
-  model: "openai:gpt-4o",
-});
-
-const runtime = new CopilotRuntime({
-  agents: [builtInAgent],
-});
+```plaintext title=".env"
+OPENAI_API_KEY=sk-...
 ```
+
+<Callout type="info">
+See [Model Selection](/built-in-agent/model-selection) for Anthropic and Google setup, or to use a custom AI SDK model.
+</Callout>
+</Step>
+
+<Step>
+### Create the runtime endpoint
+
+Set up a backend endpoint with the `BuiltInAgent` and `CopilotRuntime`:
+
+<Tabs groupId="endpoint-type" items={[ 'Next.js App Router', 'Next.js Pages Router', 'Node.js Express', 'Node.js HTTP', 'NestJS' ]}>
+    <Tab value="Next.js App Router" className="bg-white">
+        ```ts title="app/api/copilotkit/route.ts"
+        import {
+          CopilotRuntime,
+          copilotRuntimeNextJSAppRouterEndpoint,
+        } from "@copilotkit/runtime";
+        import { BuiltInAgent } from "@copilotkit/runtime/v2";
+        import { NextRequest } from "next/server";
+
+        const builtInAgent = new BuiltInAgent({
+          name: "assistant",
+          description: "A helpful AI assistant",
+          model: "openai:gpt-4o",
+        });
+
+        const runtime = new CopilotRuntime({
+          agents: [builtInAgent],
+        });
+
+        export const POST = async (req: NextRequest) => {
+          const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
+            runtime,
+            endpoint: "/api/copilotkit",
+          });
+
+          return handleRequest(req);
+        };
+        ```
+    </Tab>
+
+    <Tab value="Next.js Pages Router">
+        ```ts title="pages/api/copilotkit.ts"
+        import { NextApiRequest, NextApiResponse } from "next";
+        import {
+          CopilotRuntime,
+          copilotRuntimeNextJSPagesRouterEndpoint,
+        } from "@copilotkit/runtime";
+        import { BuiltInAgent } from "@copilotkit/runtime/v2";
+
+        const builtInAgent = new BuiltInAgent({
+          name: "assistant",
+          description: "A helpful AI assistant",
+          model: "openai:gpt-4o",
+        });
+
+        const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+          const runtime = new CopilotRuntime({
+            agents: [builtInAgent],
+          });
+
+          const handleRequest = copilotRuntimeNextJSPagesRouterEndpoint({
+            endpoint: "/api/copilotkit",
+            runtime,
+          });
+
+          return await handleRequest(req, res);
+        };
+
+        export default handler;
+        ```
+    </Tab>
+
+    <Tab value="Node.js Express">
+        ```ts title="server.ts"
+        import express from "express";
+        import {
+          CopilotRuntime,
+          copilotRuntimeNodeHttpEndpoint,
+        } from "@copilotkit/runtime";
+        import { BuiltInAgent } from "@copilotkit/runtime/v2";
+
+        const app = express();
+
+        const builtInAgent = new BuiltInAgent({
+          name: "assistant",
+          description: "A helpful AI assistant",
+          model: "openai:gpt-4o",
+        });
+
+        app.use("/copilotkit", (req, res, next) => {
+          (async () => {
+            const runtime = new CopilotRuntime({
+              agents: [builtInAgent],
+            });
+            const handler = copilotRuntimeNodeHttpEndpoint({
+              endpoint: "/copilotkit",
+              runtime,
+            });
+
+            return handler(req, res);
+          })().catch(next);
+        });
+
+        app.listen(4000, () => {
+          console.log("Listening at http://localhost:4000/copilotkit");
+        });
+        ```
+    </Tab>
+
+    <Tab value="Node.js HTTP">
+        ```ts title="server.ts"
+        import { createServer } from "node:http";
+        import {
+          CopilotRuntime,
+          copilotRuntimeNodeHttpEndpoint,
+        } from "@copilotkit/runtime";
+        import { BuiltInAgent } from "@copilotkit/runtime/v2";
+
+        const builtInAgent = new BuiltInAgent({
+          name: "assistant",
+          description: "A helpful AI assistant",
+          model: "openai:gpt-4o",
+        });
+
+        const server = createServer((req, res) => {
+          const runtime = new CopilotRuntime({
+            agents: [builtInAgent],
+          });
+          const handler = copilotRuntimeNodeHttpEndpoint({
+            endpoint: "/copilotkit",
+            runtime,
+          });
+
+          return handler(req, res);
+        });
+
+        server.listen(4000, () => {
+          console.log("Listening at http://localhost:4000/copilotkit");
+        });
+        ```
+    </Tab>
+
+    <Tab value="NestJS">
+        ```ts title="copilotkit.controller.ts"
+        import { All, Controller, Req, Res } from "@nestjs/common";
+        import {
+          CopilotRuntime,
+          copilotRuntimeNestEndpoint,
+        } from "@copilotkit/runtime";
+        import { BuiltInAgent } from "@copilotkit/runtime/v2";
+        import { Request, Response } from "express";
+
+        @Controller()
+        export class CopilotKitController {
+          @All("/copilotkit")
+          copilotkit(@Req() req: Request, @Res() res: Response) {
+            const builtInAgent = new BuiltInAgent({
+              name: "assistant",
+              description: "A helpful AI assistant",
+              model: "openai:gpt-4o",
+            });
+
+            const runtime = new CopilotRuntime({
+              agents: [builtInAgent],
+            });
+
+            const handler = copilotRuntimeNestEndpoint({
+              runtime,
+              endpoint: "/copilotkit",
+            });
+
+            return handler(req, res);
+          }
+        }
+        ```
+    </Tab>
+</Tabs>
 </Step>
 
 <Step>
 ### Add the CopilotKit provider
 
-Wrap your app with `CopilotKit` and add a chat component:
+Wrap your app with the `CopilotKit` provider:
 
 ```tsx title="app/layout.tsx"
 import { CopilotKit } from "@copilotkit/react-core";
@@ -53,6 +223,10 @@ export default function RootLayout({ children }) {
   );
 }
 ```
+</Step>
+
+<Step>
+### Add a chat component
 
 ```tsx title="app/page.tsx"
 import { CopilotChat } from "@copilotkit/react-core/v2";
@@ -76,3 +250,12 @@ export default function Page() {
 Run your app and start chatting with your Built-in Agent.
 </Step>
 </Steps>
+
+## What's next?
+
+<Cards>
+  <Card title="Server Tools" href="/built-in-agent/server-tools" description="Give your agent backend capabilities with custom tools." />
+  <Card title="MCP Servers" href="/built-in-agent/mcp-servers" description="Connect MCP servers for extended tool support." />
+  <Card title="Model Selection" href="/built-in-agent/model-selection" description="Switch to Anthropic, Google, or a custom model." />
+  <Card title="Frontend Tools" href="/built-in-agent/frontend-tools" description="Let the agent interact with your UI." />
+</Cards>
