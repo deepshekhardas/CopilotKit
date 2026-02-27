@@ -25,6 +25,7 @@ Frontend tools let your AI agents directly interact with and update your applica
     }),
     handler: async ({ theme }) => {
       document.documentElement.dataset.theme = theme;
+      return `Theme set to ${theme}!`;
     },
   });
   ```

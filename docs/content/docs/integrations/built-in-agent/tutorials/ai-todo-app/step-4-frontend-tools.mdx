@@ -32,6 +32,7 @@ export const TasksProvider = ({ children }: { children: ReactNode }) => {
     }),
     handler: ({ title }) => {
       addTask(title);
+      return `Added task: ${title}`;
     },
   });
 
@@ -44,6 +45,7 @@ export const TasksProvider = ({ children }: { children: ReactNode }) => {
     }),
     handler: ({ id }) => {
       deleteTask(id);
+      return `Deleted task ${id}`;
     },
   });
 
@@ -57,6 +59,7 @@ export const TasksProvider = ({ children }: { children: ReactNode }) => {
     }),
     handler: ({ id, status }) => {
       setTaskStatus(id, status);
+      return `Set task ${id} status to ${status}`;
     },
   });
 

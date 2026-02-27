@@ -4,6 +4,7 @@ import {
   Zap,
   BookOpen,
   Play,
+  Settings,
 } from "lucide-react"
 
 ## Overview
@@ -11,6 +12,23 @@ import {
 The `useAgent` hook provides direct access to your agent from any React component. It gives you real-time access to the agent's state, messages, execution status, and allows you to subscribe to custom events.
 
 This enables you to build custom agent dashboards, monitoring tools, and interactive features that respond to your agent's behavior.
+
+<Cards className="gap-6 mt-6 mb-8">
+  <Card
+    icon={<Play className="text-primary" />}
+    className="p-6 rounded-xl text-base"
+    title="Running the Agent"
+    description="Trigger your agent programmatically with copilotkit.runAgent()."
+    href="#running-the-agent-programmatically"
+  />
+  <Card
+    icon={<Settings className="text-primary" />}
+    className="p-6 rounded-xl text-base"
+    title="Fully Headless UI"
+    description="Build a completely custom chat interface from the ground up using CopilotKit's headless hooks."
+    href="custom-look-and-feel/headless-ui"
+  />
+</Cards>
 
 import UseAgentSnippet from "@/snippets/use-agent.mdx";
 

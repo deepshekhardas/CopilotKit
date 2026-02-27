@@ -65,6 +65,7 @@ Use frontend tools when you need your agent to interact with client-side primiti
             }),
             handler: async ({ name }) => {
               alert(`Hello, ${name}!`);
+              return `Said hello to ${name}!`;
             },
           });
 

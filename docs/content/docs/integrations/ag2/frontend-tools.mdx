@@ -75,6 +75,7 @@ Without frontend actions, agents are limited to just processing and returning da
             ],
             handler: async ({ name }) => {
               alert(`Hello, ${name}!`);
+              return `Said hello to ${name}!`;
             },
           });
 
