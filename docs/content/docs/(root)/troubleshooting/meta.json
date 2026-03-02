@@ -1,6 +1,7 @@
 {
   "pages": [
     "error-debugging",
+    "dev-console",
     "observability-connectors",
     "common-issues",
     "migrate-to-1.10.X",
