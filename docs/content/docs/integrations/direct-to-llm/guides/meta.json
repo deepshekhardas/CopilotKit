@@ -21,6 +21,7 @@
     "...premium",
     "---Advanced Features---",
     "bring-your-own-llm",
+    "docker-model-runner",
     "model-context-protocol",
     "guardrails",
     "messages-localstorage",
