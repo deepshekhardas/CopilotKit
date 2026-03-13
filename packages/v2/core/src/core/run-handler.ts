@@ -239,13 +239,15 @@ export class RunHandler {
 
           // Execute the frontend tool if either:
           // 1. No tool result exists yet (normal flow), or
-          // 2. A result exists but the tool is a registered frontend tool
-          //    with a handler — the existing result is a backend placeholder
-          //    (e.g. "Forwarded to client") that must be replaced by the
-          //    real frontend execution result.
+          // 2. A result exists but it is a "Forwarded to client" placeholder
+          //    from the backend (e.g. after HITL approval) that must be 
+          //    replaced by the real frontend execution result.
+          const isPlaceholder = existingResultIdx !== -1 && 
+            typeof newMessages[existingResultIdx].content === "string" &&
+            newMessages[existingResultIdx].content.includes("Forwarded to client");
+
           const shouldExecute =
-            existingResultIdx === -1 ||
-            (existingResultIdx !== -1 && tool?.handler);
+            existingResultIdx === -1 || (isPlaceholder && tool?.handler);
 
           if (shouldExecute) {
             // Remove the backend placeholder result so executeSpecificTool
