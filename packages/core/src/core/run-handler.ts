@@ -272,15 +272,41 @@ export class RunHandler {
     for (const message of newMessages) {
       if (message.role === "assistant") {
         for (const toolCall of message.toolCalls || []) {
-          if (
-            newMessages.findIndex(
-              (m) => m.role === "tool" && m.toolCallId === toolCall.id,
-            ) === -1
-          ) {
-            const tool = this.getTool({
-              toolName: toolCall.function.name,
-              agentId: agent.agentId,
-            });
+          const existingResultIdx = newMessages.findIndex(
+            (m) => m.role === "tool" && m.toolCallId === toolCall.id,
+          );
+
+          const tool = this.getTool({
+            toolName: toolCall.function.name,
+            agentId: agent.agentId,
+          });
+
+          // Execute the frontend tool if either:
+          // 1. No tool result exists yet (normal flow), or
+          // 2. A result exists but it is a "Forwarded to client" placeholder
+          //    from the backend (e.g. after HITL approval) that must be 
+          //    replaced by the real frontend execution result.
+          const isPlaceholder = existingResultIdx !== -1 && 
+            typeof newMessages[existingResultIdx].content === "string" &&
+            newMessages[existingResultIdx].content.includes("Forwarded to client");
+
+          const shouldExecute =
+            existingResultIdx === -1 || (isPlaceholder && tool?.handler);
+
+          if (shouldExecute) {
+            // Remove the backend placeholder result so executeSpecificTool
+            // can insert the real one at the correct position.
+            if (existingResultIdx !== -1) {
+              const placeholderId = newMessages[existingResultIdx].id;
+              newMessages.splice(existingResultIdx, 1);
+              const agentMsgIdx = agent.messages.findIndex(
+                (m) => m.id === placeholderId,
+              );
+              if (agentMsgIdx !== -1) {
+                agent.messages.splice(agentMsgIdx, 1);
+              }
+            }
+
             if (tool) {
               const followUp = await this.executeSpecificTool(
                 tool,
