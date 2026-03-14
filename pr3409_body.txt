@@ -1,0 +1,80 @@
+## Summary
+
+Eliminates the V1/V2 package split by consolidating all packages into a single flat `packages/` directory. The `@copilotkitnext/*` scope is completely removed — V2 implementation code now lives directly inside the `@copilotkit/*` packages under their `./v2` subpath.
+
+**Before:** `packages/v1/*` (public wrappers) + `packages/v2/*` (real implementations)
+**After:** `packages/*` (unified packages with V2 code inline)
+
+### What changed
+
+- **11 commits**, **1034 files changed**, net reduction of ~2500 lines
+- All `@copilotkitnext/*` references eliminated across the entire codebase
+- All packages build, type-check, and pass tests
+
+## Detailed breakdown
+
+### 1. Workspace config (`pnpm-workspace.yaml`)
+Changed from `packages/v1/*` + `packages/v2/*` to `packages/*`.
+
+### 2. Build config packages moved
+`tsconfig`, `eslint-config-custom`, `tailwind-config` moved from `packages/v1/` to `packages/`.
+
+### 3. Shared package merge
+Merged `@copilotkitnext/shared` into `@copilotkit/shared` with deduplication:
+- Logger, finalizeRunEvents, transcription errors, constants (`DEFAULT_AGENT_ID`, `AG_UI_CHANNEL_EVENT`) all consolidated
+- Duplicate utilities removed in favor of the more complete version
+
+### 4. V2-only packages renamed
+Packages that only existed in V2 moved to flat `packages/` and renamed to `@copilotkit/*`:
+- `@copilotkitnext/core` → `@copilotkit/core`
+- `@copilotkitnext/agent` → `@copilotkit/agent`
+- `@copilotkitnext/a2ui-renderer` → `@copilotkit/a2ui-renderer`
+- `@copilotkitnext/sdk-js` → `@copilotkit/sdk-js`
+- `@copilotkitnext/demo-agents` → `@copilotkit/demo-agents`
+- `@copilotkitnext/typescript-config` → `@copilotkit/typescript-config`
+
+### 5. React absorption
+V2 react code (`@copilotkitnext/react`) absorbed into `@copilotkit/react-core` under `src/v2/`. The `./v2` subpath export now points to local code instead of re-exporting from a separate package.
+
+### 6. Runtime absorption
+V2 runtime code (`@copilotkitnext/runtime`) absorbed into `@copilotkit/runtime` under `src/v2/`. Same pattern — `./v2` subpath now resolves locally.
+
+### 7. Remaining packages moved
+Angular, sqlite-runner, web-inspector, voice, and all other V1 packages moved from `packages/v1/` to `packages/`.
+
+### 8. Global import rewrite
+All `@copilotkitnext/*` imports replaced with `@copilotkit/*` equivalents across 222+ files.
+
+### 9. CI/CD and scripts
+- Merged `test_unit-v1.yml` + `test_unit-v2.yml` into single `test_unit.yml`
+- Updated publish workflows for flat directory structure
+- Removed split scripts (`test:classic`/`test:next`, `dev:classic`/`dev:next`)
+
+### 10. Build & test fixes
+Several issues discovered and fixed during verification:
+
+| Issue | Root cause | Fix |
+|-------|-----------|-----|
+| CSS build fails (`Can't resolve 'tailwindcss'`) | rolldown tried to process Tailwind v4 CSS directives | Externalized `.css` imports in tsdown config, added `tailwindcss` devDep |
+| `TS2802` Map/Set iteration | V1 tsconfig had no target (defaulted to es3) | Added `target: "es2022"` to runtime/shared tsconfigs |
+| `result.content` is `undefined` in tests | ES2022 class field "define" semantics overwrites `Object.assign` in base class | Added `useDefineForClassFields: false` to runtime tsconfig |
+| `import agui from` returns undefined | Default import on module with no default export | Changed to `import * as agui from` (8 files) |
+| `DEFAULT_AGENT_ID` missing in mock | Incomplete `vi.mock` of `@copilotkit/shared` | Used `importOriginal` to pass through real exports |
+| `rxjs` not found in tests | V2 test utilities use rxjs, not in react-core deps | Added `rxjs` as devDependency |
+| Wrong `package.json` import path | `../../../../package.json` resolved to wrong package after move | Fixed to `../../../package.json` |
+| Cross-package test import broken | Relative path `../../../../core/` wrong after directory restructure | Updated to correct depth |
+
+## What stays the same
+
+- **Public API**: All `@copilotkit/*` package names and their `./v2` subpath exports remain identical
+- **Package.json exports**: No changes to the exports map consumers depend on
+- **Runtime behavior**: No functional changes — only structural reorganization
+
+## Test plan
+
+- [x] All `@copilotkit/*` packages build successfully (`nx run-many -t build`)
+- [x] All tests pass (runtime: 376/376, react-core: 858/858, all others green)
+- [x] Type checking passes for shared, demo-agents, and all non-pre-existing failures
+- [x] No remaining `@copilotkitnext` references in source
+- [ ] CI pipeline runs clean
+- [ ] Verify examples still work end-to-end

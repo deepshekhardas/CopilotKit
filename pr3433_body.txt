@@ -1,0 +1,47 @@
+## Summary
+
+Fixes #3410
+
+`@ai-sdk/openai-compatible` (and similar providers) emit default/placeholder message IDs like `txt-0`, `reasoning-0`, `txt-1`, etc. These are sequential content-block indices that **reset for every response**, not unique message identifiers.
+
+The existing check only filtered the literal `"0"`:
+```ts
+if (providedId && providedId !== "0") {
+  // used as messageId
+}
+```
+
+This let pattern-based defaults like `"txt-0"` and `"reasoning-0"` pass through, causing **all messages across responses to share the same ID**. The frontend then merges/overwrites messages that should be separate.
+
+## Root Cause
+
+The `@ai-sdk/openai-compatible` provider generates IDs using a `<type>-<index>` pattern (e.g., `txt-0`, `txt-1`, `reasoning-0`) as internal content block indices. These are not meant to be globally unique — they reset for each new response. When CopilotKit treats them as real message IDs, separate messages get the same ID.
+
+## Fix
+
+Replace the equality check with a regex pattern that detects known default ID formats:
+
+```ts
+const DEFAULT_PROVIDER_ID_PATTERN = /^(?:\d+|(?:txt|reasoning)-\d+)$/;
+
+// Before: providedId !== "0"
+// After:  !DEFAULT_PROVIDER_ID_PATTERN.test(providedId)
+```
+
+This catches:
+- Pure numeric IDs: `"0"`, `"1"`, `"2"`, ...
+- Text block indices: `"txt-0"`, `"txt-1"`, ...
+- Reasoning block indices: `"reasoning-0"`, `"reasoning-1"`, ...
+
+Genuine provider IDs (e.g., `"msg_abc123"`, UUIDs, `"chatcmpl-xyz"`) are unaffected.
+
+## Changes
+
+- **`packages/v2/agent/src/index.ts`**: Added `DEFAULT_PROVIDER_ID_PATTERN` regex constant; updated `reasoning-start` and `text-start` handlers to use pattern matching instead of equality check
+- **`packages/v2/agent/src/__tests__/basic-agent.test.ts`**: Added regression tests for `"txt-0"` and `"reasoning-0"` default IDs
+
+## Testing
+
+All 141 existing tests pass, plus 2 new regression tests:
+- `should generate unique messageId when provider returns default pattern IDs like 'txt-0'`
+- `should generate unique reasoningMessageId when provider returns 'reasoning-0'`

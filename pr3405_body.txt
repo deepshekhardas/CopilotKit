@@ -1,0 +1,29 @@
+## Problem
+When using `moduleResolution: 'bundler'`, `'node16'`, or `'nodenext'` in tsconfig.json, TypeScript strictly follows the `exports` map and ignores the top-level `"types"` field. Since no `"types"` condition exists inside conditional exports, TypeScript cannot resolve type declarations, producing errors like:
+
+```
+Module '"@copilotkitnext/react"' has no exported member 'useAgent'.
+```
+
+## Fix
+Adds the `"types"` condition as the **first** entry in every conditional export (required by TypeScript's resolution order) across all affected packages.
+
+### v2 packages (10)
+`react`, `agent`, `core`, `demo-agents`, `runtime` (+ `./express`), `shared`, `sqlite-runner`, `voice`, `web-inspector`, `angular`
+
+### v1 packages (8)
+`a2ui-renderer`, `react-core` (+ `./v2`), `react-textarea`, `react-ui`, `runtime-client-gql`, `runtime` (+ `./langgraph`, `./v2`), `sdk-js` (+ `./langchain`, `./langgraph`), `shared`
+
+### Example change
+```diff
+ "exports": {
+   ".": {
++    "types": "./dist/index.d.cts",
+     "import": "./dist/index.mjs",
+     "require": "./dist/index.cjs"
+   }
+ }
+```
+The `.d.cts` files already exist in published packages — they just need to be referenced in the exports map.
+
+Fixes #3324

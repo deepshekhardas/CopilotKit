@@ -1,0 +1,11 @@
+## Summary
+- Adds an optional `agentId` field to `useAgentContext` so context can be scoped to a specific agent
+- Context with an `agentId` is only forwarded to that agent; global context (no `agentId`) is sent to all agents
+- Mirrors the existing `agentId` scoping behavior of `useFrontendTool`
+- Introduces `FrontendContext` type (extends AG-UI `Context` with optional `agentId`), following the `FrontendTool` naming pattern
+
+## Test plan
+- [x] Unit tests: `useAgentContext` passes `agentId` through, re-registers on change, is idempotent when stable
+- [x] Core integration tests: `runAgent` and `connectAgent` filter context by `agentId`, forwarded payload strips `agentId`
+- [x] React E2E test: real rendering with multiple `useAgentContext` hooks verifies only matching context reaches the agent
+- [x] All 51 react test files pass, all core context tests pass

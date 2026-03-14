@@ -1,0 +1,7 @@
+packages/v2/core/src/__tests__/core-context-agent-scoping.test.ts
+packages/v2/core/src/core/context-store.ts
+packages/v2/core/src/core/core.ts
+packages/v2/core/src/core/run-handler.ts
+packages/v2/react/src/hooks/__tests__/use-agent-context-scoping.e2e.test.tsx
+packages/v2/react/src/hooks/__tests__/use-agent-context.test.tsx
+packages/v2/react/src/hooks/use-agent-context.tsx

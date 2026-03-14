@@ -1,0 +1,95 @@
+diff --git a/packages/v2/core/src/__tests__/core-edge-cases.test.ts b/packages/v2/core/src/__tests__/core-edge-cases.test.ts
+index c24dffc3f0..ef15792f93 100644
+--- a/packages/v2/core/src/__tests__/core-edge-cases.test.ts
++++ b/packages/v2/core/src/__tests__/core-edge-cases.test.ts
+@@ -81,9 +81,13 @@ describe("CopilotKitCore.runAgent - Edge Cases", () => {
+   });
+ 
+   it("should handle tool arguments as empty string", async () => {
++    const handler = vi.fn(
++      async (args: any) => `Received: ${JSON.stringify(args)}`,
++    );
+     const tool = createTool({
+       name: "emptyArgsTool",
+-      handler: vi.fn(async (args) => `Received: ${JSON.stringify(args)}`),
++      handler,
++      followUp: false,
+     });
+     copilotKitCore.addTool(tool);
+ 
+@@ -107,9 +111,10 @@ describe("CopilotKitCore.runAgent - Edge Cases", () => {
+       agent: agent as any,
+     });
+ 
+-    await expect(
+-      copilotKitCore.runAgent({ agent: agent as any }),
+-    ).rejects.toThrow();
++    await copilotKitCore.runAgent({ agent: agent as any });
++
++    // Empty string arguments should be treated as empty object
++    expect(handler).toHaveBeenCalledWith({}, expect.anything());
+   });
+ 
+   it("should handle very large tool result", async () => {
+diff --git a/packages/v2/core/src/__tests__/core-full.test.ts b/packages/v2/core/src/__tests__/core-full.test.ts
+index d945b187ba..e0fa6f887a 100644
+--- a/packages/v2/core/src/__tests__/core-full.test.ts
++++ b/packages/v2/core/src/__tests__/core-full.test.ts
+@@ -251,9 +251,13 @@ describe("CopilotKitCore.runAgent - Full Test Suite", () => {
+ 
+     it("TEST 8: should handle empty string arguments", async () => {
+       console.log("TEST 8: Starting empty arguments test");
++      const handler = vi.fn(
++        async (args: any) => `Received: ${JSON.stringify(args)}`,
++      );
+       const tool = createTool({
+         name: "emptyArgsTool",
+-        handler: vi.fn(async (args) => `Received: ${JSON.stringify(args)}`),
++        handler,
++        followUp: false,
+       });
+       copilotKitCore.addTool(tool);
+ 
+@@ -277,14 +281,10 @@ describe("CopilotKitCore.runAgent - Full Test Suite", () => {
+         agent: agent as any,
+       });
+ 
+-      try {
+-        await copilotKitCore.runAgent({ agent: agent as any });
+-        console.log("TEST 8: ERROR - Should have thrown on empty string!");
+-        expect(true).toBe(false);
+-      } catch (error) {
+-        console.log(`TEST 8: Success - caught error: ${error}`);
+-        expect(tool.handler).not.toHaveBeenCalled();
+-      }
++      // Empty string arguments should be treated as empty object, not throw
++      await copilotKitCore.runAgent({ agent: agent as any });
++      console.log("TEST 8: Success - empty args treated as {}");
++      expect(handler).toHaveBeenCalledWith({}, expect.anything());
+     });
+ 
+     it("TEST 9: should handle chain of follow-ups", async () => {
+diff --git a/packages/v2/core/src/core/run-handler.ts b/packages/v2/core/src/core/run-handler.ts
+index 1be0477862..289cfd53dd 100644
+--- a/packages/v2/core/src/core/run-handler.ts
++++ b/packages/v2/core/src/core/run-handler.ts
+@@ -306,7 +306,8 @@ export class RunHandler {
+     if (tool?.handler) {
+       let parsedArgs: unknown;
+       try {
+-        parsedArgs = JSON.parse(toolCall.function.arguments);
++        const rawArgs = toolCall.function.arguments;
++        parsedArgs = rawArgs ? JSON.parse(rawArgs) : {};
+       } catch (error) {
+         const parseError =
+           error instanceof Error ? error : new Error(String(error));
+@@ -445,7 +446,8 @@ export class RunHandler {
+     if (wildcardTool?.handler) {
+       let parsedArgs: unknown;
+       try {
+-        parsedArgs = JSON.parse(toolCall.function.arguments);
++        const rawArgs = toolCall.function.arguments;
++        parsedArgs = rawArgs ? JSON.parse(rawArgs) : {};
+       } catch (error) {
+         const parseError =
+           error instanceof Error ? error : new Error(String(error));

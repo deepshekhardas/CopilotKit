@@ -1,0 +1,43 @@
+## Problem
+
+When a HITL (Human-in-the-Loop) tool has no parameters, some providers (e.g., Google ADK) send `arguments` as an empty string `""`. `JSON.parse("")` throws `"Unexpected end of JSON input"`, crashing the tool execution pipeline with an opaque error instead of executing the tool with empty args.
+
+Fixes #3263
+
+## Root Cause
+
+In `run-handler.ts`, both the specific-tool and wildcard-tool execution paths call `JSON.parse(toolCall.function.arguments)` without checking for empty/falsy values:
+
+```ts
+// Line 309 — specific tool path
+parsedArgs = JSON.parse(toolCall.function.arguments); // crashes on ""
+
+// Line 448 — wildcard tool path  
+parsedArgs = JSON.parse(toolCall.function.arguments); // crashes on ""
+```
+
+## Fix
+
+Treat empty/falsy argument strings as `{}` (empty object) before parsing:
+
+```ts
+const rawArgs = toolCall.function.arguments;
+parsedArgs = rawArgs ? JSON.parse(rawArgs) : {};
+```
+
+This matches the existing defensive patterns:
+- **v1 `agui-to-gql.ts`**: already catches parse errors and falls back to `{}`
+- **v2 `web-inspector`**: already checks `args === ""  ` before parsing (line 818)
+
+## Changes
+
+| File | Change |
+|------|--------|
+| `packages/v2/core/src/core/run-handler.ts` | Safe empty-args fallback at both parse sites |
+| `packages/v2/core/src/__tests__/core-edge-cases.test.ts` | Updated test: empty args → handler called with `{}` |
+| `packages/v2/core/src/__tests__/core-full.test.ts` | Updated test: empty args → handler called with `{}` |
+
+## Testing
+
+- All 230 passing tests still pass (61 pre-existing failures in unrelated packages unchanged)
+- Updated 2 tests that previously expected a crash on empty args to verify the handler is called with `{}`

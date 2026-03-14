@@ -1,0 +1,5 @@
+Files changed in PR 3439:
+
+1. packages/v2/core/src/__tests__/core-edge-cases.test.ts (modified, +9, -4)
+2. packages/v2/core/src/__tests__/core-full.test.ts (modified, +9, -9)
+3. packages/v2/core/src/core/run-handler.ts (modified, +4, -2)
