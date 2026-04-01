@@ -41,6 +41,21 @@ Then point your frontend at the endpoint:
 
 For setup with other backend frameworks (Express, NestJS, Node.js HTTP), see the [quickstart](/quickstart).
 
+## The Default Agent
+
+If you register an agent with the name `"default"`, CopilotKit's prebuilt UI components will use it automatically without any additional configuration on the frontend. This is useful when you have one primary agent and don't want to specify an `agentId` everywhere.
+
+```ts title="app/api/copilotkit/route.ts"
+const runtime = new CopilotRuntime({
+  agents: {
+    // This agent will be used automatically by CopilotPopup, CopilotSidebar, etc.
+    "default": new HttpAgent({ url: "https://my-agent.example.com" }),
+  },
+});
+```
+
+When you register multiple agents, the `"default"` agent is what powers the chat unless a specific agent is selected. Other agents can still be used by passing their `agentId` to `useAgent` or the prebuilt components.
+
 ## What the Runtime Provides
 
 ### Authentication and Security
@@ -58,6 +73,52 @@ When you register multiple agents with the runtime, it handles discovery and rou
 ### Premium Features
 
 Features like [threads](/premium/threads), [observability](/premium/observability), and the [inspector](/premium/inspector) are provided through the runtime. These give you conversation persistence, monitoring, and debugging capabilities out of the box.
+
+## Built-in Middleware
+
+The runtime supports two first-class middleware options you can enable directly on `CopilotRuntime` without calling `.use()` on each agent manually.
+
+### A2UI
+
+Pass `a2ui: {}` to automatically apply `A2UIMiddleware` to all registered agents:
+
+```ts title="app/api/copilotkit/route.ts"
+const runtime = new CopilotRuntime({
+  agents: { default: myAgent },
+  a2ui: {},  // enables A2UI rendering for all agents
+});
+```
+
+To scope it to specific agents only, pass an `agents` list:
+
+```ts
+a2ui: { agents: ["my-agent"] }
+```
+
+On the frontend, the A2UI renderer activates automatically — no extra configuration needed. If you want to override the default theme, pass an `a2ui` prop to `<CopilotKit>`:
+
+```tsx
+<CopilotKit runtimeUrl="/api/copilotkit" a2ui={{ theme: myCustomTheme }}>
+  {children}
+</CopilotKit>
+```
+
+### mcpApps
+
+Pass `mcpApps` to configure MCP servers for all agents from a single place:
+
+```ts title="app/api/copilotkit/route.ts"
+const runtime = new CopilotRuntime({
+  agents: { default: myAgent },
+  mcpApps: {
+    servers: [
+      { type: "http", url: "http://localhost:3108/mcp", serverId: "my-server" },
+    ],
+  },
+});
+```
+
+Each server entry optionally accepts an `agentId` field to scope that server to a single agent. Without it, the server is available to all agents.
 
 ## What If I Want to Connect to My AG-UI Agent Directly?
 

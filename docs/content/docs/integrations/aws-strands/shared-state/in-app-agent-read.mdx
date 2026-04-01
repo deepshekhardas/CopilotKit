@@ -41,33 +41,52 @@ state updates, you can reflect these updates natively in your application.
 
     Define your agent's state schema. AWS Strands maintains state throughout execution.
 
-    ```python title="agent/my_agent.py"
+    ```python title="agent/main.py"
+    import os
+    from ag_ui_strands import StrandsAgent, StrandsAgentConfig, create_strands_app
     from strands import Agent
-    from typing import TypedDict
+    from strands.models.openai import OpenAIModel
 
-    # 1. Define the agent state schema
-    class AgentState(TypedDict):
-        language: str  # "english" or "spanish"
-
-    # 2. Create the agent with state
-    agent = Agent(
-        name="languageAgent",
-        description="Always communicate in the preferred language of the user as defined in the state",
-        state_schema=AgentState,
-        initial_state={"language": "english"},
-        instructions="Always communicate in the preferred language of the user as defined in your state. Do not communicate in any other language."
+    model = OpenAIModel(
+        client_args={"api_key": os.getenv("OPENAI_API_KEY", "")},
+        model_id="gpt-4o",
     )
+
+    # Create the Strands agent
+    strands_agent = Agent(
+        model=model,
+        system_prompt="Always communicate in the preferred language of the user as defined in your state. Do not communicate in any other language.",
+    )
+
+    # Inject state into the prompt
+    def language_prompt(input_data, user_message: str) -> str:
+        state_dict = getattr(input_data, "state", None)
+        if isinstance(state_dict, dict) and "language" in state_dict:
+            return f"Current language: {state_dict['language']}\n\nUser request: {user_message}"
+        return user_message
+
+    config = StrandsAgentConfig(state_context_builder=language_prompt)
+
+    # Wrap with AG-UI integration
+    agui_agent = StrandsAgent(
+        agent=strands_agent,
+        name="languageAgent",
+        description="Always communicate in the preferred language of the user",
+        config=config,
+    )
+
+    app = create_strands_app(agui_agent)
     ```
   </Step>
 
   <Step>
-    ### Use the `useCoAgent` Hook
+    ### Use the `useAgent` Hook
 
-    With your agent connected and running, call the [useCoAgent](/reference/v1/hooks/useCoAgent) hook, pass the agent's name, and
+    With your agent connected and running, call the `useAgent` hook, pass the agent's name, and
     optionally provide an initial state.
 
     ```tsx title="ui/app/page.tsx"
-    import { useCoAgent } from "@copilotkit/react-core"; // [!code highlight]
+    import { useAgent } from "@copilotkit/react-core/v2"; // [!code highlight]
 
     // Define the agent state type to match your Strands agent
     type AgentState = {
@@ -76,8 +95,8 @@ state updates, you can reflect these updates natively in your application.
 
     function YourMainContent() {
       // [!code highlight:5]
-      const { state } = useCoAgent<AgentState>({
-        name: "languageAgent",
+      const { agent } = useAgent({
+        agentId: "languageAgent",
         // optionally provide a type-safe initial state
         initialState: { language: "spanish" }
       });
@@ -89,13 +108,13 @@ state updates, you can reflect these updates natively in your application.
         <div>
           <h1>Your main content</h1>
           {/* [!code highlight:1] */}
-          <p>Language: {state.language}</p>
+          <p>Language: {agent.state?.language}</p>
         </div>
       );
     }
     ```
     <Callout type="info">
-      The `state` in `useCoAgent` is reactive and will automatically update when the agent state changes.
+      The `agent.state` in `useAgent` is reactive and will automatically update when the agent state changes.
     </Callout>
   </Step>
 
@@ -110,10 +129,10 @@ state updates, you can reflect these updates natively in your application.
 ## Rendering agent state in the chat
 
 You can also render the agent state in the chat UI. This is useful for informing the user about the state in a
-more in-context way. To do this, you can use the [useCoAgentStateRender](/reference/v1/hooks/useCoAgentStateRender) hook.
+more in-context way. To do this, you can use the `useAgent` hook with a `render` function.
 
 ```tsx title="ui/app/page.tsx"
-import { useCoAgentStateRender } from "@copilotkit/react-core"; // [!code highlight]
+import { useAgent } from "@copilotkit/react-core/v2"; // [!code highlight]
 
 // Define the agent state type, should match the actual state of your agent
 type AgentState = {
@@ -123,8 +142,8 @@ type AgentState = {
 function YourMainContent() {
   // ...
   // [!code highlight:7]
-  useCoAgentStateRender({
-    name: "languageAgent",
+  useAgent({
+    agentId: "languageAgent",
     render: ({ state }) => {
       if (!state.language) return null;
       return <div>Language: {state.language}</div>;
@@ -135,5 +154,5 @@ function YourMainContent() {
 ```
 
 <Callout type="info">
-  The `state` in `useCoAgentStateRender` is reactive and will automatically update when the agent state changes.
+  The `agent.state` in `useAgent` is reactive and will automatically update when the agent state changes.
 </Callout>
