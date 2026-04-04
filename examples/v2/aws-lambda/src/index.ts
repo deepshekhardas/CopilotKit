@@ -1,6 +1,7 @@
 /**
  * AWS Lambda handler for CopilotKit Runtime
  * Issue #1151: Add AWS Lambda example for self-hosted CopilotKit Runtime
+ * Issue #3301: Add request timeout handling
  */
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
@@ -11,6 +12,42 @@ import {
   defineTool,
   ToolDefinition 
 } from "@copilotkitnext/agent";
+
+/**
+ * Timeout configuration for different operations
+ * Issue #3301: Add request timeout handling
+ */
+const TIMEOUT_CONFIG = {
+  agentRun: 25000, // 25 seconds (leaving 5s buffer for Lambda cold start)
+  agentConnect: 10000, // 10 seconds
+  agentStop: 5000, // 5 seconds
+};
+
+/**
+ * Execute a promise with a timeout
+ * Issue #3301: Add request timeout handling
+ */
+async function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  operationName: string
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      reject(new Error(`Operation '${operationName}' timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+
+    promise
+      .then((result) => {
+        clearTimeout(timeoutId);
+        resolve(result);
+      })
+      .catch((error) => {
+        clearTimeout(timeoutId);
+        reject(error);
+      });
+  });
+}
 
 // Define example tools
 const searchTool = defineTool({
@@ -176,11 +213,15 @@ async function handleAgentRun(
       agent.setMessages(messages);
     }
 
-    // Run the agent
-    const result = await runtime.runAgent({
-      agent,
-      forwardedProps,
-    });
+    // Run the agent with timeout (Issue #3301: Request timeout handling)
+    const result = await withTimeout(
+      runtime.runAgent({
+        agent,
+        forwardedProps,
+      }),
+      TIMEOUT_CONFIG.agentRun,
+      "agent/run"
+    );
 
     return {
       statusCode: 200,
@@ -235,7 +276,12 @@ async function handleAgentConnect(
       };
     }
 
-    const result = await runtime.connectAgent({ agent });
+    // Connect agent with timeout (Issue #3301: Request timeout handling)
+    const result = await withTimeout(
+      runtime.connectAgent({ agent }),
+      TIMEOUT_CONFIG.agentConnect,
+      "agent/connect"
+    );
 
     return {
       statusCode: 200,
@@ -278,8 +324,13 @@ async function handleAgentStop(
   try {
     const agent = runtime.getAgent(agentId || "default");
     
+    // Stop agent with timeout (Issue #3301: Request timeout handling)
     if (agent) {
-      runtime.stopAgent({ agent });
+      await withTimeout(
+        Promise.resolve(runtime.stopAgent({ agent })),
+        TIMEOUT_CONFIG.agentStop,
+        "agent/stop"
+      );
     }
 
     return {
@@ -330,6 +381,8 @@ async function handleInfo(): Promise<APIGatewayProxyResult> {
         threadRestoration: true,  // Issue #3256
         aguiDirectIntegration: true,  // Issue #2186
         messageHistory: true,  // Issue #1881
+        connectionResilience: true,  // Issue #3300
+        timeoutHandling: true,  // Issue #3301
       },
     }),
   };
