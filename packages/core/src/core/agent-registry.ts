@@ -346,6 +346,7 @@ export class AgentRegistry {
       agent.headers = {
         ...this.agentOwnHeaders.get(agent),
         ...(this.core as unknown as CopilotKitCoreFriendsAccess).headers,
+        ...agent.headers,
       };
     }
   }
