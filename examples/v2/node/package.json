@@ -17,6 +17,6 @@
   "dependencies": {
     "@copilotkitnext/agent": "workspace:^",
     "@copilotkitnext/runtime": "workspace:^",
-    "@hono/node-server": "^1.13.6"
+    "@hono/node-server": "^1.19.15"
   }
 }
